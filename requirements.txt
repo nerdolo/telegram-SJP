@@ -1,0 +1,5 @@
+bs4
+json
+telethon
+aiohttp[speedups]
+urllib.parse
