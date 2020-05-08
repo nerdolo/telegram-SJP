@@ -1,0 +1,10 @@
+version: '3.5'
+
+services:
+  telegram-sjp:
+    # environment:
+    #   API_ID:
+    #   API_HASH:
+    #   BOT_TOKEN:
+    env_file: .env
+    build: .
