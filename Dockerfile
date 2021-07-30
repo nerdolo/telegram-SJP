@@ -11,7 +11,7 @@ WORKDIR /usr/src/bot
 COPY --chown=bot:bot . .
 
 RUN chown bot:bot /usr/src/bot \
-    && apk add --no-cache --virtual .build-deps build-base libffi-dev libressl-dev gcc \
+    && apk add --no-cache --virtual .build-deps build-base libffi-dev libretls-dev gcc \
     && pip install -r requirements.txt \
     && apk del .build-deps
 
