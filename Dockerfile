@@ -11,7 +11,6 @@ RUN apk add --no-cache --virtual .build-deps gcc build-base libffi-dev libretls-
     chown -R nobody:nogroup /app
 
 COPY --chown=nobody:nogroup . .
-COPY --chown=nobody:nogroup config.example.yml config.yml
 
 USER nobody
 
