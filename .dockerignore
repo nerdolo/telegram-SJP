@@ -128,9 +128,18 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Jetbrains
-.idea
+# Config file with creds
+config.yml
 
 # Telethon files
 *.session
 *.session-journal
+
+# Docker
+.dockerignore
+
+# Git and Github
+.git
+.gitignore
+.gitattributes
+.github

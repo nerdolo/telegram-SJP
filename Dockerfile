@@ -1,20 +1,18 @@
 FROM python:alpine
 
-# ENV API_ID
-# ENV API_HASH
-# ENV BOT_TOKEN
+WORKDIR /app
 
-RUN addgroup bot \
-    && adduser -s /bin/sh -D -G bot bot
+ADD requirements.txt .
 
-WORKDIR /usr/src/bot
-COPY --chown=bot:bot . .
+RUN apk add --no-cache --virtual .build-deps gcc build-base libffi-dev libretls-dev cargo && \
+    pip install -r requirements.txt && \
+    apk del .build-deps && \
+    rm -rf /root/.cache /root/.cargo && \
+    chown -R nobody:nogroup /app
 
-RUN chown bot:bot /usr/src/bot \
-    && apk add --no-cache --virtual .build-deps build-base libffi-dev libretls-dev gcc \
-    && pip install -r requirements.txt \
-    && apk del .build-deps
+COPY --chown=nobody:nogroup . .
+COPY --chown=nobody:nogroup config.example.yml config.yml
 
-USER bot
+USER nobody
 
-CMD python ./bot.py ${API_ID} ${API_HASH} ${BOT_TOKEN}
+CMD python bot.py ${API_ID} ${API_HASH} ${BOT_TOKEN}
