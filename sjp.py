@@ -3,14 +3,12 @@ class for taking words' definitions from sjp.pwn.pl
 '''
 import aiohttp
 from bs4 import BeautifulSoup
-import json
 import urllib.parse
 
 
-
 class SJP:
-    def __init__(self):
-        self.sess = aiohttp.ClientSession()
+    def __init__(self, sess: aiohttp.ClientSession):
+        self.sess = sess
 
     async def close(self):
         await self.sess.close()
@@ -22,13 +20,36 @@ class SJP:
         await self.close()
 
     async def get_autocomplete(self, query):
-        async with self.sess.get('https://sjp.pwn.pl/complete.php?source=autocomplete-sjp&query=' + urllib.parse.quote_plus(query)) as r:
-            txt = await r.text()
-            js = json.loads(txt)
-            return [i['value'] for i in js]
+        async with self.sess.get('https://sjp.pwn.pl/api/autocomplete', params={'query': query}) as resp:
+            completions = (await resp.json())['hits']['hits']
+            return [item['_source']['title'] for item in completions]
 
     async def get_definition(self, word):
-        async with self.sess.get('https://sjp.pwn.pl/szukaj/' + urllib.parse.quote_plus(word) + '.html') as r:
-            soup = BeautifulSoup(await r.text(), 'html.parser')
-            sjp_results = soup.find("div", attrs={"class": "sjp-wyniki"})
-            return sjp_results.find(attrs={"class": "entry-body"}).get_text().strip().replace('\xa0', ' ') if sjp_results is not None else None
+        url = f"https://sjp.pwn.pl/slowniki/{urllib.parse.quote_plus(word)}.html"
+
+        async with self.sess.get(url) as resp:
+            resp.raise_for_status()
+            html = await resp.text()
+
+        soup = BeautifulSoup(html, "html.parser")
+        lines = []
+
+        title_elem = soup.select_one("span.tytul a")
+        if title_elem:
+            lines.append(title_elem.get_text(strip=True))
+
+        znacz_elements = soup.select("div.znacz")
+
+        if znacz_elements:
+            for znacz in znacz_elements:
+                lines.append(znacz.get_text())
+        else:
+            article = soup.select_one("li.pwn-article")
+            if article:
+                for br in article.find_all("br"):
+                    br.replace_with("\n")
+                text = article.get_text().strip()
+                if text:
+                    lines.append(text)
+
+        return "\n".join(lines) if lines else None

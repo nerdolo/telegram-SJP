@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":semanticCommits",
+    ":semanticCommitScopeDisabled",
+    "docker:enableMajor",
+    "customManagers:dockerfileVersions",
+    ":disableRateLimiting",
+    ":ignoreUnstable",
+    ":separateMultipleMajorReleases",
+    ":updateNotScheduled"
+  ],
+  "packageRules": [
+    {
+      "description": "Group OS packages to avoid build errors if more than one package is updated and previous version is not present in repo already",
+      "matchDatasources": [
+        "repology"
+      ],
+      "groupName": "OS Packages"
+    },
+    {
+      "description": "Disable updates for JuniorJPDJ/containers docker-parallel-multiarch-build reusable workflow",
+      "matchDepNames": ["JuniorJPDJ/containers"],
+      "matchManagers": ["github-actions"],
+      "enabled": false
+    }
+  ],
+  "ignoreDeps": [
+    "ghcr.io/juniorjpdj/telegram-sjp"
+  ],
+  "forkProcessing": "enabled"
+}

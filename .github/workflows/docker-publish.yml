@@ -1,0 +1,32 @@
+name: Docker build
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: "Build and push the container"
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+    uses: JuniorJPDJ/containers/.github/workflows/docker-parallel-multiarch-build.yml@master
+    with:
+      title: telegram-sjp
+      platforms: 'linux/amd64,linux/386,linux/arm/v7,linux/arm64'
+      buildkit-mount-caches: '{"home-cache": "/root/.cache", "home-cargo": "/root/.cargo"}'
+      buildkit-mount-cache-ids-append-platform: true
+      registry: ghcr.io
+      registry-username: ${{ github.actor }}
+      image-name: ${{ github.repository }}
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}

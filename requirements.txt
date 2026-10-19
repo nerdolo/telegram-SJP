@@ -1,3 +1,4 @@
-bs4
-telethon
-aiohttp[speedups]
+beautifulsoup4==4.15.0
+telethon==1.45.0
+cryptg==0.6.0
+aiohttp[speedups]==3.14.5
